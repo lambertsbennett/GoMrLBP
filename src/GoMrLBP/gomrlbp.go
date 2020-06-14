@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lambertsbennett/GoMrLBP/LBPFunctions"
+	"github.com/lambertsbennett/GoMrLBP/src/LBPFunctions"
 	"fmt"
 	"os"
 	"runtime"
@@ -22,6 +22,12 @@ flag.StringVar(&contigfile,"file","","Contig file in fasta format.")
 var out string
 flag.StringVar(&out,"o",".","Output file.")
 
+var max_win int
+flag.IntVar(&max_win,"max-win",9,"Largest window to use computing LBP codes. Must be odd.")
+
+var single bool
+flag.BoolVar(&single,"single-win", false, "Use a single window to calculate LBP codes.")
+
 runtime.GOMAXPROCS(proc)
 
 
@@ -36,19 +42,19 @@ var wg sync.WaitGroup
 in := make(chan LBPFunctions.Sequence, len(ls))
 //out := make(chan Sequence,len(ls))
 
-if 7 % 2 == 0{
+if max_win % 2 == 0{
 	fmt.Println("Error: window sizes must be an odd number.")
 	os.Exit(1)
 }
-windows := make([]int,0)
-for i:=3; i<=9; i=i+2{
-	windows = append(windows,i)
-}
+
+if single == true{
+
+	windows := make([]int,0)
+	windows = append(windows, max_win)
 
 	for i:=0; i< 100; i++ {
 		wg.Add(1)
 		go calcLBPHist(&wg,in,windows,&lsp)
-
 	}
 
 	fmt.Println("Spawned workers.")
@@ -67,6 +73,35 @@ for i:=3; i<=9; i=i+2{
 
 	fmt.Println("Workers done.")
 
+}else {
+
+	windows := make([]int, 0)
+	for i := 3; i <= max_win; i = i + 2 {
+		windows = append(windows, i)
+	}
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go calcLBPHist(&wg, in, windows, &lsp)
+	}
+
+	fmt.Println("Spawned workers.")
+
+	for _, s := range ls {
+		in <- s
+	}
+
+	close(in)
+
+	fmt.Println("Closed input channel.")
+
+	LBPFunctions.PrintMemUsage()
+
+	wg.Wait()
+
+	fmt.Println("Workers done.")
+
+}
 
 t := time.Since(start)
 fmt.Printf("%v sequences analysed in %s \n",len(ls),t)
