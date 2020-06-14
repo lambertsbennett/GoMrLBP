@@ -16,6 +16,7 @@ gomrlbp -n NUM_PROCESSORS -file CONTIG_FILE -o OUTPUT_FILE
 This implementation is an improvement over the C++ implementation in that all operations are carried out in parallel, allowing entire genomes/transcriptomes to be processed in approx. 1 minute. 
 
 INPUTS: Contig fasta file (Can be gzipped).
+
 OUTPUTS: CSV file with:
 - Sequence header (read ID)
 - Species ID (if known)
