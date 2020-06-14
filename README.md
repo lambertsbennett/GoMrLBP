@@ -22,3 +22,10 @@ OUTPUTS: CSV file with:
 - Species ID (if known)
 - LBP histogram
 - SVD results.
+
+Still under development. 
+
+To add:
+- Specify max k.
+- Boolean flag; single k
+- Option to output as parquet file.
