@@ -1,3 +1,5 @@
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Multi-resolution local binary patterns in Go
 
 This package allows you to compute local binary patterns from sequence data.
