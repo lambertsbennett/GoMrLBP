@@ -23,7 +23,8 @@ OUTPUTS: CSV file with:
 - LBP histogram
 - SVD results.
 
-Still under development. 
+
+**Still under development.**
 
 To add:
 - Specify max k.
