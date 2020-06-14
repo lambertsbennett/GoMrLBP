@@ -17,14 +17,17 @@ gomrlbp -n NUM_PROCESSORS -file CONTIG_FILE -o OUTPUT_FILE -max-win MAX WINDOW L
 ```
 This implementation is an improvement over the C++ implementation in that all operations are carried out in parallel, allowing entire genomes/transcriptomes to be processed in approx. 1 minute. 
 
-INPUTS: Contig fasta file (Can be gzipped).
+----
 
-OUTPUTS: CSV file with:
+**INPUTS:** Contig fasta file (Can be gzipped).
+
+**OUTPUTS:** CSV file with:
 - Sequence header (read ID)
 - Species ID (if known)
 - LBP histogram
 - SVD results.
 
+----
 
 **Still under development.**
 
@@ -33,5 +36,6 @@ To add:
 - Consistent error handling.
 - Unit tests.
 
+----
 
 This package makes extensive use of gonum (https://github.com/gonum), gorgonia (https://github.com/gorgonia/gorgonia), and the truncated SVD implementation from James Bowman's nlp package (https://github.com/james-bowman/nlp).
