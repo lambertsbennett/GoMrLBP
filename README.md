@@ -30,6 +30,8 @@ OUTPUTS: CSV file with:
 
 To add:
 - Option to output as parquet file.
+- Consistent error handling.
+- Unit tests.
 
 
 This package makes extensive use of gonum (https://github.com/gonum), gorgonia (https://github.com/gorgonia/gorgonia), and the Singular Value Decomposition implementation from James Bowman's nlp package (https://github.com/james-bowman/nlp).
