@@ -31,8 +31,6 @@ flag.BoolVar(&single,"single-win", false, "Use a single window to calculate LBP 
 runtime.GOMAXPROCS(proc)
 
 
-// Memory problem with >1,000,000 contigs if window size 9 included
-
 ls := LBPFunctions.ReadFasta(contigfile)
 lsp := LBPFunctions.SequenceCollection{}
 
@@ -40,7 +38,6 @@ fmt.Println("Processing sequences")
 start := time.Now()
 var wg sync.WaitGroup
 in := make(chan LBPFunctions.Sequence, len(ls))
-//out := make(chan Sequence,len(ls))
 
 if max_win % 2 == 0{
 	fmt.Println("Error: window sizes must be an odd number.")
