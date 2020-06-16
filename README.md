@@ -13,9 +13,9 @@ GoMrLBP carries out several functions to transform assembled contigs into local 
 
 Usage example:
 ```
-gomrlbp -n NUM_PROCESSORS -file CONTIG_FILE -o OUTPUT_FILE -max-win MAX WINDOW LBP -single false USE SINGLE WINDOW
+gomrlbp -n NUM_PROCESSORS -file CONTIG_FILE -o OUTPUT_FILE -max-win MAX WINDOW LBP -single USE SINGLE WINDOW
 ```
-This implementation is an improvement over the C++ implementation in that all operations are carried out in parallel, allowing entire genomes/transcriptomes to be processed in approx. 1 minute. 
+This implementation is an improvement over the C++ implementation in that all operations (except SVD) are carried out in parallel, allowing entire genomes/transcriptomes to be processed in approx. 1 minute. 
 
 ----
 
