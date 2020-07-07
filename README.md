@@ -3,7 +3,7 @@
 # Multi-resolution local binary patterns in Go
 
 This package allows you to compute local binary pattern histograms from sequence data.
-Inspired by [Gouchaki et al. (2019)](https://www.nature.com/articles/s41598-018-38197-9).
+Inspired by [Kouchaki et al. (2019)](https://www.nature.com/articles/s41598-018-38197-9).
 
 GoMrLBP carries out several functions to transform assembled contigs into local binary pattern histograms:
 - Integer representation of sequences.
