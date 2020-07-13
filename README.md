@@ -21,9 +21,8 @@ This implementation is an improvement over the C++ implementation in that all op
 
 **INPUTS:** Contig fasta file (Can be gzipped).
 
-**OUTPUTS:** CSV file with:
+**OUTPUTS:** Parquet file with:
 - Sequence header (read ID)
-- Species ID (if known)
 - LBP histogram
 - SVD results.
 
@@ -32,8 +31,6 @@ This implementation is an improvement over the C++ implementation in that all op
 **Still under development.**
 
 To add:
-- Option to output as parquet file.
-- Consistent error handling.
 - Unit tests.
 
 ----
