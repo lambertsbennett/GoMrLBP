@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/lambertsbennett/GoMrLBP/src/LBPFunctions"
+	"errors"
+	"flag"
 	"fmt"
-	"os"
+	"github.com/lambertsbennett/GoMrLBP/src/LBPFunctions"
+	"log"
 	"runtime"
 	"sync"
 	"time"
-	"flag"
 )
 
 
@@ -20,7 +21,7 @@ var contigfile string
 flag.StringVar(&contigfile,"file","","Contig file in fasta format.")
 
 var out string
-flag.StringVar(&out,"o",".","Output file.")
+flag.StringVar(&out,"o","./gomrlbpout.parquet","Output file.")
 
 var max_win int
 flag.IntVar(&max_win,"max-win",9,"Largest window to use computing LBP codes. Must be odd.")
@@ -28,10 +29,10 @@ flag.IntVar(&max_win,"max-win",9,"Largest window to use computing LBP codes. Mus
 var single bool
 flag.BoolVar(&single,"single-win", false, "Use a single window to calculate LBP codes.")
 
+flag.Parse()
+
 runtime.GOMAXPROCS(proc)
 
-
-// Memory problem with >1,000,000 contigs if window size 9 included
 
 ls := LBPFunctions.ReadFasta(contigfile)
 lsp := LBPFunctions.SequenceCollection{}
@@ -40,15 +41,12 @@ fmt.Println("Processing sequences")
 start := time.Now()
 var wg sync.WaitGroup
 in := make(chan LBPFunctions.Sequence, len(ls))
-//out := make(chan Sequence,len(ls))
 
-if max_win % 2 == 0{
-	fmt.Println("Error: window sizes must be an odd number.")
-	os.Exit(1)
-}
+_, err := check_windows(max_win)
+if err != nil{log.Fatal(err)}
 
 if single == true{
-
+	fmt.Println("Executing in single mode ...")
 	windows := make([]int,0)
 	windows = append(windows, max_win)
 
@@ -57,7 +55,7 @@ if single == true{
 		go calcLBPHist(&wg,in,windows,&lsp)
 	}
 
-	fmt.Println("Spawned workers.")
+	fmt.Println("Spawned workers ...")
 
 	for _, s := range ls {
 		in <- s
@@ -65,7 +63,7 @@ if single == true{
 
 	close(in)
 
-	fmt.Println("Closed input channel.")
+	fmt.Println("Closed input channel ...")
 
 	LBPFunctions.PrintMemUsage()
 
@@ -85,7 +83,7 @@ if single == true{
 		go calcLBPHist(&wg, in, windows, &lsp)
 	}
 
-	fmt.Println("Spawned workers.")
+	fmt.Println("Spawned workers ...")
 
 	for _, s := range ls {
 		in <- s
@@ -93,7 +91,7 @@ if single == true{
 
 	close(in)
 
-	fmt.Println("Closed input channel.")
+	fmt.Println("Closed input channel ...")
 
 	LBPFunctions.PrintMemUsage()
 
@@ -114,9 +112,7 @@ fmt.Printf("SVD completed in %s \n", t)
 
 lsp.AddSVD(trunc)
 
-lsp.ToCSV(out)
-
-
+lsp.ToParquet(out)
 }
 
 func calcLBPHist(wg *sync.WaitGroup, in chan LBPFunctions.Sequence, windows []int,lsp *LBPFunctions.SequenceCollection) {
@@ -131,7 +127,6 @@ func calcLBPHist(wg *sync.WaitGroup, in chan LBPFunctions.Sequence, windows []in
 
 		}
 		rs := LBPFunctions.NewReducedSequence()
-		rs.SpeciesID = s.SpeciesID
 		rs.Header = s.Header
 		rs.Hist = s.Hist
 		lsp.Append(*rs)
@@ -139,3 +134,10 @@ func calcLBPHist(wg *sync.WaitGroup, in chan LBPFunctions.Sequence, windows []in
 	wg.Done()
 }
 
+func check_windows(max_win int) (int, error){
+	if max_win % 2 == 0{
+		return 0, errors.New("Maximum window size should be an odd integer.")
+	} else{
+		return 0, nil
+	}
+}

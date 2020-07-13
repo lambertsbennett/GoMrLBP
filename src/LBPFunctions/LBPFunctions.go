@@ -9,7 +9,7 @@ In general the workflow proceeds as follows.
 1) Read in a FASTA file of sequences. The readFasta function parses files only in FASTA format. If you have FASTQ convert first with seqtk or sed if you're too cool for school.
 Files can be gzipped or uncompressed.
 
-2) Loop through sequences and calculate LBP histograms.
+2) Iterate through sequences and calculate LBP histograms.
 This is done through a few methods:
 IntRep() finds the integer representation of a sequence (following Kouchaki et al.)
 FindLBP(wind) calculates LBP codes over a sequence segment size of 'wind'
@@ -22,7 +22,11 @@ import (
 	"compress/gzip"
 	"encoding/csv"
 	"fmt"
+	"github.com/xitongsys/parquet-go-source/local"
+	"github.com/xitongsys/parquet-go/parquet"
+	"github.com/xitongsys/parquet-go/writer"
 	"gonum.org/v1/gonum/stat/combin"
+	"log"
 	. "math"
 	"os"
 	"strconv"
@@ -34,13 +38,13 @@ import (
 func ReadFasta(fname string) []Sequence {
 	file, err := os.Open(fname)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	bReader := bufio.NewReader(file)
 	testBytes, err := bReader.Peek(2)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	file.Close()
@@ -48,12 +52,12 @@ func ReadFasta(fname string) []Sequence {
 	if testBytes[0] == 31 && testBytes[1] == 139 {
 		file, err := os.Open(fname)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		defer file.Close()
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil{
-			panic(err)
+			log.Fatal(err)
 		}
 
 		defer gzipReader.Close()
@@ -80,7 +84,7 @@ func ReadFasta(fname string) []Sequence {
 		}
 
 		if err := scanner.Err(); err != nil{
-			panic(err)
+			log.Fatal(err)
 		}
 		return sequenceList
 
@@ -88,7 +92,7 @@ func ReadFasta(fname string) []Sequence {
 	}else {
 		file, err := os.Open(fname)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		defer file.Close()
 		reader := bufio.NewReader(file)
@@ -116,7 +120,7 @@ func ReadFasta(fname string) []Sequence {
 
 		}
 		if err := scanner.Err(); err != nil{
-			panic(err)
+			log.Fatal(err)
 		}
 		return sequenceList
 	}
@@ -125,13 +129,12 @@ func ReadFasta(fname string) []Sequence {
 
 func (sc *SequenceCollection) ToCSV(fname string){
 	file,err := os.Create(fname)
-	if err != nil {panic(err)}
+	if err != nil {log.Fatal(err)}
 	w := csv.NewWriter(file)
 	defer file.Close()
 	for _,s := range sc.Items {
 		tmp := make([]string,0)
 		tmp = append(tmp, s.Header)
-		tmp = append(tmp, strconv.Itoa(s.SpeciesID))
 		tmp = append(tmp," ")
 		for _,f := range s.Hist{
 			tmp = append(tmp,strconv.FormatFloat(f,'f',-1,64))
@@ -147,6 +150,46 @@ func (sc *SequenceCollection) ToCSV(fname string){
 	w.Flush()
 }
 
+
+//Write results to parquet file. This is the recommended output format.
+func (sc *SequenceCollection) ToParquet (fname string){
+	type tmpseq struct {
+		Header    string  `parquet:"name=name, type=UTF8, encoding=PLAIN_DICTIONARY"`
+		Hist     []float64  `parquet:"name=HIST, type=DOUBLE, repetitiontype=REPEATED"`
+		SVD     []float64   `parquet:"name=SVD, type=DOUBLE, repetitiontype=REPEATED"`
+	}
+
+	fw, err := local.NewLocalFileWriter(fname)
+	if err != nil {
+		log.Println("Can't open file", err)
+		return
+	}
+	pw, err := writer.NewParquetWriter(fw, new(tmpseq),4)
+	if err != nil {
+		log.Println("Can't create parquet writer", err)
+		return
+	}
+	pw.RowGroupSize = 5 * 1024 * 1024 //5M
+	pw.CompressionType = parquet.CompressionCodec_GZIP
+
+	for _,s := range sc.Items {
+		seq := tmpseq{
+			Header: s.Header,
+			Hist:   s.Hist,
+			SVD:    s.Svd,
+		}
+		if err = pw.Write(seq); err != nil {
+			log.Println("Write error", err)
+		}
+	}
+	if err = pw.WriteStop(); err != nil {
+		log.Println("WriteStop error", err)
+		return
+	}
+	log.Println("Write Finished")
+	fw.Close()
+
+}
 
 
 // Create integer representation for a sequence

@@ -8,7 +8,6 @@ type Sequence struct {
 	NRep []float64 // numerical representation of sequence (Integer representation)
 	LbpCodes []float64 //  lbp intermediate slice
 	Hist []float64 // Un-normalized LBP histogram
-	SpeciesID int // species ID. Useful for visualization purposes allows you to track contig fate
 	Kmers string
 }
 
@@ -16,7 +15,6 @@ type ReducedSequence struct {
 	Header string //contig id from fasta file
 	Hist []float64 // Un-normalized LBP histogram
 	Svd []float64 // SVD reduced dimension vector
-	SpeciesID int // species ID. Useful for visualization purposes allows you to track contig fate
 	Kmers string
 }
 
@@ -35,12 +33,12 @@ func (cs *SequenceCollection) Append(item ReducedSequence){
 // Create a new sequence.
 // All slices are instantiated as nil slices and speciesID is default zero.
 func NewSequence() *Sequence {
-	s := Sequence{"", "", nil, nil, nil,0,""}
+	s := Sequence{"", "", nil, nil, nil,""}
 	return &s
 }
 
 func NewReducedSequence() *ReducedSequence {
-	s := ReducedSequence{"", nil, nil,0,""}
+	s := ReducedSequence{"", nil, nil,""}
 	return &s
 }
 
