@@ -33,7 +33,10 @@ flag.Parse()
 
 runtime.GOMAXPROCS(proc)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 363db2f0e4c4aec473ed5e9b030679911b9ac817
 ls := LBPFunctions.ReadFasta(contigfile)
 lsp := LBPFunctions.SequenceCollection{}
 
