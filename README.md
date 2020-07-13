@@ -26,13 +26,5 @@ This implementation is an improvement over the C++ implementation in that all op
 - LBP histogram
 - SVD results.
 
-----
-
-**Still under development.**
-
-To add:
-- Unit tests.
-
-----
 
 This package makes extensive use of gonum (https://github.com/gonum), gorgonia (https://github.com/gorgonia/gorgonia), and the truncated SVD implementation from James Bowman's nlp package (https://github.com/james-bowman/nlp).
