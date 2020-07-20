@@ -12,12 +12,12 @@ import (
 func SeqColToDense(sc SequenceCollection) *Dense {
 	cols := len(sc.Items[0].Hist)
 	rows := len(sc.Items)
-	if rows == 0{
+	if cols == 0{
 		fmt.Println("Cannot create matrix with no histogram bins present for sequences")
 		os.Exit(1)
 	}
 
-	if cols == 0{
+	if rows == 0{
 		fmt.Println("Cannot create a matrix from empty Sequence Collection")
 		os.Exit(1)
 	}
